@@ -644,10 +644,10 @@ def AStar(Node):
 			bestNodeCopy = deepcopy(bestNode.puzzle) #used deep copy to copy my board because lists in python are passed by reference
 
 			newState = Result2(bestNode, bestNodeCopy, a, computeG(bestNode)+1) #go to the action in this current state and put it in new state, also compute the g for the result 2 by getting the parent's g then adding 1 because it's a child
-
-			# for i in range(3):
-			# 	print(str(newState.puzzle[i][0])+str(newState.puzzle[i][1])+str(newState.puzzle[i][2]))
-			# print(newState.f)
+			
+			for i in range(3):
+				print(str(newState.puzzle[i][0])+str(newState.puzzle[i][1])+str(newState.puzzle[i][2]))
+			print(newState.f)
 
 			openListBoards = [node.puzzle for node in openList] #create and get the array of puzzles in frontier
 
