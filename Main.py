@@ -2,6 +2,8 @@ import pygame
 from Tiles import Tiles
 from Nodes import Nodes
 from copy import deepcopy
+from tkinter import *
+from tkinter import filedialog
 
 def main():
 
@@ -89,10 +91,13 @@ def main():
 		BFS_BUTTON_NAME = font1.render('BFS ', False, (0, 0, 0))
 		DFS_BUTTON_NAME = font1.render('DFS ', False, (0, 0, 0))
 		A_BUTTON_NAME = font1.render('A* ', False, (0, 0, 0))
+		BrowseFile_BUTTON_NAME = font1.render('Select File ', False, (0, 0, 0))
+		BrowseFile_Name = font1.render('Browse A Puzzle Config: ', False, (0, 0, 0))
 
 		DFS_BUTTON= pygame.draw.rect(gameDisplay, gray, [880, 180 ,60,40])
 		BFS_BUTTON= pygame.draw.rect(gameDisplay, gray, [880, 120 ,60,40])
 		A_BUTTON= pygame.draw.rect(gameDisplay, gray, [960, 120 ,60,40])
+		BrowseFile_BUTTON= pygame.draw.rect(gameDisplay, gray, [1150, 120 ,120,40])
 
 		NEXT_BUTTON_NAME = font1.render('NEXT ', False, (0, 0, 0))
 
@@ -246,7 +251,59 @@ def main():
 							
 							SavePath(PathCost) #save the path
 
+						if BrowseFile_BUTTON.collidepoint(pygame.mouse.get_pos()):
+							print("Browse A File") #use tkinter as a file browswer
+							root = Tk()
+							root.title("Brows a Config")
+
+							root.filename = filedialog.askopenfilename(initialdir="/puzzle_configs", title="Select A Puzzle Config", filetypes=[("in files" , "*.in")]) #browse files named .in
 					
+							# print(root.filename)
+							tilePosY=10 #set the x and y again for the board rect positions in GUI
+							tilePosX=100
+
+							#load my new board configuration
+
+							with open(root.filename, "r") as file: #read the puzzle content the selected in
+
+								puzzle = file.readlines() #read it per line
+
+
+							for i in range(3): #split the files
+								puzzle[i]=puzzle[i].split(" ")
+
+							for i in range(row):	#two loops so i can create an object of tiles in my 3x3 list
+								for j in range(col):
+									if int(puzzle[i][j]) == 0: #empty tile
+											emptyTilePosI=i #get the position of the empty tile in the array for later use
+											emptyTilePosJ=j
+									GameBoard[i][j]=Tiles(int(puzzle[i][j]),tilePosX,tilePosY); #insert the object in my list by getting the text in the puzzle.in and converting it into an int
+									tilePosX+=200;	#adjust the posiution so they wont stack
+								tilePosX=100; #reset the tile to position 100 for the 2nd level of the list
+								tilePosY+=200 #adjust the y value so they wont stack
+
+							tilePosX=100; #initial tile position for the tile 1 #
+							tilePosY=10; #set this to the original position for the reset of your puzzle later
+
+							#create my problem solving board again
+							AIBOARD = [[1,1,1],[1,1,1],[1,1,1]] # board for my BFS and DFS
+
+							for i in range(row):	#fill my ai board array
+								for j in range(col):	
+									AIBOARD[i][j]=int(puzzle[i][j]);
+
+							initialStateNode = Nodes(AIBOARD,emptyTilePosI, emptyTilePosJ, None, None, 0, computeH(AIBOARD), computeF(0, computeH(AIBOARD))); #create my initial state node from my pizzle
+
+							print("New Puzzle Config Loaded")
+
+							#check if the board is solvable again
+							checker = False #flag for printing solvable or not
+							if isBoardSolvable(GameBoard): #check if the board is solvable
+								checker = True #if it's solvable, set the checker flag to true (will be used for printing later)
+							
+							root.withdraw() #to close my tkinter after clicking it
+							# root.mainloop()
+
 
 						for i in range(row): #loop to check what tile was clicked in the array
 							for j in range(col):
@@ -289,6 +346,8 @@ def main():
 		gameDisplay.blit(A_BUTTON_NAME,(980,130))
 		gameDisplay.blit(Show_Solution,(805,50))
 		gameDisplay.blit(Show_Solution_2,(860,75))
+		gameDisplay.blit(BrowseFile_BUTTON_NAME,(1165,128))
+		gameDisplay.blit(BrowseFile_Name,(1100,70))
 
 
 
